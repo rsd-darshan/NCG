@@ -1,0 +1,70 @@
+# Byte-compiled / cached
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# Environment
+.venv/
+venv/
+env/
+.env
+.env.local
+*.env
+
+# Data and artifacts
+data/
+*.zip
+results/
+checkpoints/
+*.pkl
+*.pt
+*.pth
+
+# Experiment tracking
+wandb/
+mlruns/
+lightning_logs/
+
+# macOS
+.DS_Store
+
+# Python packaging
+*.egg-info/
+*.egg
+dist/
+build/
+eggs/
+*.manifest
+*.spec
+
+# Installer
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Optional: uncomment if you don't want to track large outputs
+# *.csv
+# figures/
