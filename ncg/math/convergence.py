@@ -10,6 +10,11 @@ convergence — stabilisation above zero is required.
 
 from __future__ import annotations
 
+from typing import Any, Dict, List
+
+import torch
+from torch.utils.data import DataLoader
+
 
 def diagnose_convergence(
     history: list[float],
@@ -87,13 +92,13 @@ def diagnose_convergence(
     }
 
 
-def run_diagnostics(ncg_logs: dict) -> dict:
+def run_diagnostics(ncg_logs: dict, verbose: bool = True) -> dict:
     """
     Run convergence diagnostics on NCG training logs.
 
     Takes the results dict from train_ncg() (or one seed's entry from ncg_logs list).
     Reads alpha_per_epoch, beta_per_epoch, lambda_per_epoch and runs
-    diagnose_convergence on each. Prints a formatted summary table to console.
+    diagnose_convergence on each. Optionally prints a formatted summary table.
 
     Returns:
         Dict with keys "alpha", "beta", "lambda", each the result of diagnose_convergence().
@@ -108,18 +113,19 @@ def run_diagnostics(ncg_logs: dict) -> dict:
         "lambda": diagnose_convergence(lambda_h, "lambda"),
     }
 
-    print("\n" + "=" * 70)
-    print("NCG meta-parameter convergence diagnostics")
-    print("=" * 70)
-    print(f"{'Param':<8} {'Final':<10} {'Rate↓':<8} {'Stable':<8} {'Classification':<14}")
-    print("-" * 70)
-    for key in ("alpha", "beta", "lambda"):
-        r = results[key]
-        print(f"{r['param']:<8} {r['final_value']:<10.4f} {str(r['rate_decreasing']):<8} {str(r['stabilised']):<8} {r['classification']:<14}")
-    print("=" * 70)
-    for key in ("alpha", "beta", "lambda"):
-        print(f"  {results[key]['message']}")
-    print()
+    if verbose:
+        print("\n" + "=" * 70)
+        print("NCG meta-parameter convergence diagnostics")
+        print("=" * 70)
+        print(f"{'Param':<8} {'Final':<10} {'Rate↓':<8} {'Stable':<8} {'Classification':<14}")
+        print("-" * 70)
+        for key in ("alpha", "beta", "lambda"):
+            r = results[key]
+            print(f"{r['param']:<8} {r['final_value']:<10.4f} {str(r['rate_decreasing']):<8} {str(r['stabilised']):<8} {r['classification']:<14}")
+        print("=" * 70)
+        for key in ("alpha", "beta", "lambda"):
+            print(f"  {results[key]['message']}")
+        print()
     return results
 
 
@@ -175,4 +181,150 @@ def compute_theoretical_fixed_point(
         "beta_star": beta_star,
         "lambda_star": lambda_star,
         "verdict": verdict,
+    }
+
+
+# -----------------------------------------------------------------------------
+# Perturbation test (experimental proof of fixed point)
+# -----------------------------------------------------------------------------
+
+_PARAM_RAW_ATTR = {"alpha": "alpha_raw", "beta": "beta_raw", "lambda": "lambda_raw"}
+_PARAM_GETTER = {
+    "alpha": lambda m: m.alpha.item(),
+    "beta": lambda m: m.beta.item(),
+    "lambda": lambda m: m.lambda_.item(),
+}
+
+
+def perturbation_test(
+    model: torch.nn.Module,
+    val_loader: DataLoader,
+    device: torch.device,
+    param_name: str,
+    delta: float = 0.1,
+    steps: int = 20,
+    lr_meta: float = 0.01,
+    num_classes: int = 2,
+) -> dict:
+    """
+    Nudge one meta-parameter by delta, run gradient meta-updates on val data,
+    and check whether it returns toward the original value (fixed-point stability).
+
+    Returns dict with: original_value, perturbed_value, recovered_value, delta_applied,
+    recovery_ratio (1.0 = full recovery), verdict (fixed_point_confirmed | inconclusive | no_fixed_point).
+    """
+    if param_name not in _PARAM_RAW_ATTR:
+        raise ValueError("param_name must be one of 'alpha', 'beta', 'lambda'")
+    raw_attr = _PARAM_RAW_ATTR[param_name]
+    get_val = _PARAM_GETTER[param_name]
+
+    meta_params = model.get_meta_params()
+    if not meta_params:
+        return {
+            "original_value": 0.0,
+            "perturbed_value": 0.0,
+            "recovered_value": 0.0,
+            "delta_applied": delta,
+            "recovery_ratio": 0.0,
+            "verdict": "no_fixed_point",
+        }
+    opt_meta = torch.optim.Adam(meta_params, lr=lr_meta)
+
+    model.eval()
+    original_value = get_val(model)
+    with torch.no_grad():
+        getattr(model, raw_attr).add_(delta)
+    perturbed_value = get_val(model)
+
+    model.train()
+    batches = []
+    for x, y in val_loader:
+        batches.append((x.to(device), y.to(device)))
+        if len(batches) >= steps:
+            break
+    if len(batches) < steps:
+        # Cycle through available batches
+        from itertools import cycle
+        batch_iter = cycle(batches)
+        batches = [next(batch_iter) for _ in range(steps)]
+
+    for val_x, val_y in batches:
+        opt_meta.zero_grad()
+        logits_meta, _ = model(val_x)
+        meta_loss = model.compute_meta_loss(logits_meta, val_y, num_classes=num_classes)
+        (-meta_loss).backward()
+        opt_meta.step()
+
+    recovered_value = get_val(model)
+    denom = abs(perturbed_value - original_value)
+    if denom < 1e-10:
+        recovery_ratio = 1.0
+    else:
+        recovery_ratio = 1.0 - (abs(recovered_value - original_value) / denom)
+    recovery_ratio = max(0.0, min(1.0, recovery_ratio))
+
+    if recovery_ratio > 0.5:
+        verdict = "fixed_point_confirmed"
+    elif recovery_ratio > 0.2:
+        verdict = "inconclusive"
+    else:
+        verdict = "no_fixed_point"
+
+    return {
+        "original_value": float(original_value),
+        "perturbed_value": float(perturbed_value),
+        "recovered_value": float(recovered_value),
+        "delta_applied": float(delta),
+        "recovery_ratio": float(recovery_ratio),
+        "verdict": verdict,
+    }
+
+
+def run_full_analysis(
+    model: torch.nn.Module,
+    ncg_logs: dict,
+    val_loader: DataLoader,
+    device: torch.device,
+    perturbation_delta: float = 0.1,
+    perturbation_steps: int = 20,
+) -> dict:
+    """
+    Run diagnostics, fixed-point estimate, and perturbation tests; print report.
+    Returns dict with keys: diagnostics, fixed_points, perturbation_tests.
+    """
+    diagnostics = run_diagnostics(ncg_logs, verbose=False)
+    alpha_h = ncg_logs.get("alpha_per_epoch", [])
+    beta_h = ncg_logs.get("beta_per_epoch", [])
+    lambda_h = ncg_logs.get("lambda_per_epoch", [])
+    fixed_points = compute_theoretical_fixed_point(alpha_h, beta_h, lambda_h)
+
+    perturbation_tests = {}
+    for pname in ("alpha", "beta", "lambda"):
+        perturbation_tests[pname] = perturbation_test(
+            model, val_loader, device, pname,
+            delta=perturbation_delta, steps=perturbation_steps,
+        )
+
+    # Formatted report
+    print("\n" + "┌" + "─" * 42 + "┐")
+    print("│     NCG Meta-Parameter Analysis         │")
+    print("├" + "──────────┬──────────┬────────┬──────────┤")
+    print("│ Param    │ Final    │ Class  │ Verdict  │")
+    print("├" + "──────────┼──────────┼────────┼──────────┤")
+    for key in ("alpha", "beta", "lambda"):
+        d = diagnostics[key]
+        fp_val = fixed_points[f"{key}_star"]
+        pt = perturbation_tests[key]
+        verdict_short = "✓ FP" if pt["verdict"] == "fixed_point_confirmed" else ("?" if pt["verdict"] == "inconclusive" else "✗")
+        class_short = "conv." if d["classification"] == "converging" else ("decay" if d["classification"] == "decaying" else "inconcl.")
+        print(f"│ {key:<8} │ {fp_val:<8.4f} │ {class_short:<6} │ {verdict_short:<8} │")
+    print("└" + "──────────┴──────────┴────────┴──────────┘")
+    n_fp = sum(1 for p in perturbation_tests.values() if p["verdict"] == "fixed_point_confirmed")
+    print(f" Fixed point detected for {n_fp}/3 parameters.")
+    print()
+
+    return {
+        "diagnostics": diagnostics,
+        "fixed_points": fixed_points,
+        "perturbation_tests": perturbation_tests,
     }

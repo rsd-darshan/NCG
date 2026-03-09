@@ -4,6 +4,13 @@ NCG — Novelty-triggered Capacity Growth.
 Self-regulating continual learning that grows capacity only when needed.
 """
 
+from ncg.adapters import (
+    Conv2dGrowthAdapter,
+    GrowthAdapter,
+    LinearGrowthAdapter,
+    NCGGrowthAdapter,
+    TransformerGrowthAdapter,
+)
 from ncg.model import (
     DENModel,
     DENModelCNN,
@@ -24,6 +31,11 @@ from ncg.train import (
 )
 
 __all__ = [
+    "GrowthAdapter",
+    "LinearGrowthAdapter",
+    "Conv2dGrowthAdapter",
+    "TransformerGrowthAdapter",
+    "NCGGrowthAdapter",
     "NCGModel",
     "NCGModelCNN",
     "StaticMLP",
