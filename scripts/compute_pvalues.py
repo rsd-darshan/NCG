@@ -89,6 +89,7 @@ def main():
     parser.add_argument("--benchmark", type=str, default="split_mnist", choices=["split_mnist", "split_cifar10"])
     parser.add_argument("--convergence", action="store_true", help="Run full convergence analysis and save results/convergence_analysis.json")
     parser.add_argument("--results_dir", type=str, default="./results", help="Results directory (for --convergence: ncg_logs.pkl and checkpoints)")
+    parser.add_argument("--checkpoint_dir", type=str, default="./checkpoints")
     args = parser.parse_args()
     benchmark = args.benchmark
     results_dir = Path(args.results_dir)
@@ -126,7 +127,7 @@ def main():
         ncg_logs_first = all_ncg_logs[0]
         tasks = get_tasks(data_dir="./data", batch_size=64)
         val_loader = tasks[0][1]
-        ckpt_dir = results_dir / "checkpoints" / f"{ckpt_prefix}ncg_seed{first_seed}"
+        ckpt_dir = Path(args.checkpoint_dir) / f"{ckpt_prefix}ncg_seed{first_seed}"
         last_task = len(tasks) - 1
         ckpt_path = ckpt_dir / f"ncg_task_{last_task}.pt"
         if not ckpt_path.exists():
