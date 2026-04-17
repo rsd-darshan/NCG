@@ -40,7 +40,9 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/Ami-Darshan/NCG"
+Homepage = "https://github.com/rsd-darshan/NCG"
+Repository = "https://github.com/rsd-darshan/NCG"
+Issues = "https://github.com/rsd-darshan/NCG/issues"
 
 [tool.setuptools.packages.find]
 where = ["."]

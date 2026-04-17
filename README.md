@@ -1,7 +1,9 @@
 # NCG — Novelty-triggered Capacity Growth
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c.svg)](https://pytorch.org/)
+[![CI](https://github.com/rsd-darshan/NCG/actions/workflows/ci.yml/badge.svg)](https://github.com/rsd-darshan/NCG/actions/workflows/ci.yml)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![PyTorch 2.0+](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c.svg)](https://pytorch.org/)
+[![PyPI](https://img.shields.io/badge/PyPI-not%20published-lightgrey)](https://pypi.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 Self-regulating continual learning that grows capacity only when needed.
@@ -54,17 +56,33 @@ A central component is the **knowledge embedding K** with **gated write**: a fix
 
 ## Installation
 
+`ncg-torch` is not published on PyPI yet.
+PyPI release is planned after API stabilization and CI hardening.
+
 ```bash
-pip install ncg-torch
+# Install from source
+git clone https://github.com/rsd-darshan/NCG.git
+cd NCG
+pip install -e .
 ```
 
-**Or from source:**
+For contributors/dev tools:
 
 ```bash
-git clone https://github.com/Ami-Darshan/NCG.git
-cd NCG
 pip install -e ".[dev]"
 ```
+
+## Figures
+
+### Split-MNIST
+
+![Split-MNIST accuracy over tasks](results/figures/accuracy_over_tasks.png)
+![Split-MNIST NCG growth](results/figures/ncg_growth.png)
+
+### Split-CIFAR-10
+
+![Split-CIFAR-10 accuracy over tasks](results_cifar10/figures/accuracy_over_tasks.png)
+![Split-CIFAR-10 NCG growth](results_cifar10/figures/ncg_growth.png)
 
 ## Quick Start
 
@@ -109,7 +127,7 @@ run_diagnostics(data["ncg_logs"][0])
   author  = {Poudel, Darshan},
   year    = {2025},
   note    = {Preprint. Under review.},
-  url     = {https://github.com/Ami-Darshan/NCG}
+  url     = {https://github.com/rsd-darshan/NCG}
 }
 ```
 
