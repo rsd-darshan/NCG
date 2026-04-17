@@ -173,6 +173,23 @@ python scripts/main.py --benchmark split_cifar10 --seeds 42 43 44 45 46 47 48 49
 
 CI note: GitHub Actions runs unit tests on Python 3.9/3.11, excluding `integration` tests that require dataset downloads.
 
+Results policy: this repository tracks curated result tables/figures used in the README, while large training artifacts (checkpoints, raw dumps) are ignored.
+
+## Reproducibility
+
+- Environment: Python 3.9+ and PyTorch 2.0+.
+- Determinism: set a fixed seed via `ncg.set_seed(seed)` and run multiple seeds for robust reporting.
+- Suggested command:
+
+```bash
+python scripts/main.py --benchmark split_cifar10 --seeds 42 43 44 45 46
+```
+
+- Output locations:
+  - `results/results_table.csv`
+  - `results_cifar10/results_table.csv`
+  - `results*/figures/`
+
 ## Convergence Diagnostics
 
 ```python

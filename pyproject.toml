@@ -44,6 +44,9 @@ Homepage = "https://github.com/rsd-darshan/NCG"
 Repository = "https://github.com/rsd-darshan/NCG"
 Issues = "https://github.com/rsd-darshan/NCG/issues"
 
+[project.scripts]
+ncg-run = "scripts.main:main"
+
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["ncg*"]
