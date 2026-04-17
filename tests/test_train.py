@@ -1,5 +1,6 @@
 """Pytest tests for ncg.train."""
 
+import pytest
 import torch
 from torch.utils.data import DataLoader, TensorDataset
 
@@ -12,11 +13,13 @@ from ncg.train import (
 from ncg.model import NCGModel, StaticMLP
 
 
+@pytest.mark.integration
 def test_get_split_mnist_tasks_returns_5_tasks():
     tasks = get_split_mnist_tasks(data_dir="./data", batch_size=32)
     assert len(tasks) == 5
 
 
+@pytest.mark.integration
 def test_each_task_is_tuple_of_3_dataloaders():
     tasks = get_split_mnist_tasks(data_dir="./data", batch_size=32)
     for t in tasks:

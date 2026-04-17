@@ -54,6 +54,12 @@ A central component is the **knowledge embedding K** with **gated write**: a fix
 
 **63% forgetting reduction vs StaticMLP-256 on Split-CIFAR-10 (p < 0.0001).**
 
+### Comparison Highlights
+
+- **Forgetting control (CIFAR-10):** NCG reduces forgetting by ~63% versus `StaticMLP-256` (`0.084` vs `0.230`).
+- **Ablation signal:** Disabling growth or fixing meta-parameters increases forgetting (`0.103` and `0.096`), supporting the contribution of adaptive growth + learnable meta-parameters.
+- **Trade-off profile:** EWC reaches the highest final average accuracy on both benchmarks, while NCG offers a better stability profile than non-regularized growing/static baselines.
+
 ## Installation
 
 `ncg-torch` is not published on PyPI yet.
@@ -105,6 +111,17 @@ print(f"Final forgetting: {forgetting:.4f}")
 python scripts/main.py --benchmark split_mnist --seeds 42 43 44 45 46 47 48 49 50 51
 python scripts/main.py --benchmark split_cifar10 --seeds 42 43 44 45 46 47 48 49 50 51
 ```
+
+## CI
+
+GitHub Actions runs unit tests on push and pull requests to `main` for Python 3.9 and 3.11.
+Integration tests that require dataset download are marked with `integration` and excluded from default CI.
+
+## Paper
+
+Research paper (local PDF in this repository):
+
+- [NCG (1).pdf](NCG%20(1).pdf)
 
 ## Convergence Diagnostics
 

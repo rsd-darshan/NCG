@@ -48,3 +48,6 @@ Issues = "https://github.com/rsd-darshan/NCG/issues"
 where = ["."]
 include = ["ncg*"]
 exclude = ["tests", "scripts", "examples", "results", "data", "checkpoints"]
+
+[tool.setuptools]
+license-files = ["LICENSE"]
