@@ -214,7 +214,7 @@ run_diagnostics(logs["ncg_logs"][0])
 
 ## Paper
 
-- [NCG_paper.pdf](NCG_paper.pdf)
+- [NCG.pdf](NCG.pdf)
 
 ## Citation
 
