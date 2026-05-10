@@ -1,0 +1,60 @@
+{
+  "diagnostics": {
+    "alpha": {
+      "param": "alpha",
+      "final_value": 0.4460051655769348,
+      "rate_decreasing": true,
+      "stabilised": true,
+      "classification": "converging",
+      "message": "alpha converges to ~0.4460 (rate decreasing, stabilised above 0.05)."
+    },
+    "beta": {
+      "param": "beta",
+      "final_value": 0.03782018646597862,
+      "rate_decreasing": true,
+      "stabilised": false,
+      "classification": "decaying",
+      "message": "beta decays to 0.0378 (\u2264 0.05); may be gradient decay rather than fixed point."
+    },
+    "lambda": {
+      "param": "lambda",
+      "final_value": 0.6196489334106445,
+      "rate_decreasing": true,
+      "stabilised": false,
+      "classification": "inconclusive",
+      "message": "lambda final=0.6196, rate_decreasing=True, stabilised=False."
+    }
+  },
+  "fixed_points": {
+    "alpha_star": 0.441983562707901,
+    "beta_star": 0.03886608965694904,
+    "lambda_star": 0.6306530475616455,
+    "verdict": "Fixed point detected"
+  },
+  "perturbation_tests": {
+    "alpha": {
+      "original_value": 0.4460051655769348,
+      "perturbed_value": 0.47082701325416565,
+      "recovered_value": 0.42138832807540894,
+      "delta_applied": 0.1,
+      "recovery_ratio": 0.008259263305890552,
+      "verdict": "no_fixed_point"
+    },
+    "beta": {
+      "original_value": 0.03325861319899559,
+      "perturbed_value": 0.0355142205953598,
+      "recovered_value": 0.031094050034880638,
+      "delta_applied": 0.1,
+      "recovery_ratio": 0.040363510243854095,
+      "verdict": "no_fixed_point"
+    },
+    "lambda": {
+      "original_value": 0.5218194127082825,
+      "perturbed_value": 0.5466967821121216,
+      "recovered_value": 0.4968005120754242,
+      "delta_applied": 0.1,
+      "recovery_ratio": 0.0,
+      "verdict": "no_fixed_point"
+    }
+  }
+}

@@ -1,0 +1,56 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ncg"
+version = "0.1.0"
+description = "Novelty-triggered Capacity Growth — self-regulating continual learning"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [
+    { name = "Darshan Poudel", email = "darshanpoudel.dev@gmail.com" }
+]
+keywords = ["continual-learning", "neural-networks", "meta-learning"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+    "torch>=2.0.0",
+    "torchvision>=0.15.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "matplotlib>=3.7.0",
+    "pandas>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+]
+
+[project.urls]
+Homepage = "https://github.com/rsd-darshan/NCG"
+Repository = "https://github.com/rsd-darshan/NCG"
+Issues = "https://github.com/rsd-darshan/NCG/issues"
+
+[project.scripts]
+ncg-run = "ncg.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ncg*"]
+exclude = ["tests", "scripts", "examples", "results", "data", "checkpoints"]
+
+[tool.setuptools]
+license-files = ["LICENSE"]
